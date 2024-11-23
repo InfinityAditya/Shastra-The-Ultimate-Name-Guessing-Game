@@ -10,7 +10,7 @@ Clone the repository:
 
 bash
 Copy code
-git clone https://github.com/yourusername/name-guessing-game.git
+git clone https://github.com/InfinityAditya/name-guessing-game.git
 Navigate to the project folder:
 
 bash
