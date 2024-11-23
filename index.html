@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Name Guessing Game</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="game-container">
+        <h1>Name Guessing Game</h1>
+        <p id="lifes">Lives: {{ lifes }}</p>
+        <p id="placeholder">{{ placeholder }}</p>
+        <p id="message">{{ message }}</p>
+
+        <input type="text" id="guessInput" maxlength="1" placeholder="Guess a letter" />
+        <button id="guessButton">Guess</button>
+        <button id="restartButton">Restart Game</button>
+
+        <div id="gameResult"></div>
+
+        <!-- Hangman image -->
+        <div id="hangman">
+            <img src="{{ url_for('static', filename='images/hangman6.png') }}" id="hangmanImage" />
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#guessButton").click(function() {
+                var guess = $("#guessInput").val();
+                if (guess) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/guess",
+                        data: { guess: guess },
+                        success: function(response) {
+                            if (response.error) {
+                                alert(response.error);
+                            } else {
+                                $("#placeholder").text(response.placeholder);
+                                $("#lifes").text("Lives: " + response.lifes);
+                                $("#message").text(response.message);
+                                
+                                if (response.game_over) {
+                                    $("#guessButton").prop("disabled", true);
+                                }
+                            }
+
+                            // Hangman images based on lives
+                            var hangmanImages = [
+                                "hangman6.png", "hangman5.png", "hangman4.png", 
+                                "hangman3.png", "hangman2.png", "hangman1.png", "hangman0.png"
+                            ];
+                            $("#hangmanImage").attr("src", "{{ url_for('static', filename='images/') }}" + hangmanImages[6 - response.lifes]);
+                        }
+                    });
+                }
+            });
+
+            $("#restartButton").click(function() {
+                $.ajax({
+                    type: "POST",
+                    url: "/restart",
+                    success: function(response) {
+                        $("#placeholder").text(response.placeholder);
+                        $("#lifes").text("Lives: " + response.lifes);
+                        $("#message").text(response.message);
+                        $("#guessButton").prop("disabled", false);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
